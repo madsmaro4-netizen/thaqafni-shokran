@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ثقفني شكراً | منصة الريلز والتحديات التعليمية</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Cairo Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#080c14',
+                            card: '#111827',
+                            accent: '#6366f1',
+                            teal: '#14b8a6',
+                            gold: '#f59e0b',
+                            pink: '#ec4899'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #060911;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Panels */
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.25);
+        }
+
+        /* Reels Player Frame Styling */
+        .reels-container {
+            aspect-ratio: 9 / 16;
+            max-height: 560px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #080c14;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6366f1;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Brand Logo -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="scrollToSection('hero')">
+                     <img src="logo.png.jpeg" alt="لوجو ثقفني شكراً" class="w-11 h-11 rounded-full object-cover border-2 border-amber-400 shadow-md">
+                        <i class="fa-solid font-bold text-2xl text-white fa-rocket"></i>
+                    </div>
+                    <div>
+                        <span class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-teal-400 via-indigo-300 to-pink-400">ثقفني شكراً</span>
+                        <span class="text-[10px] block text-slate-400 tracking-widest font-semibold">THAQAFNI SHOKRAN</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden md:flex items-center space-x-reverse space-x-8 text-sm font-bold">
+                    <a href="#hero" class="text-slate-300 hover:text-teal-400 transition-colors">الرئيسية</a>
+                    <a href="#reels-section" class="text-slate-300 hover:text-pink-400 transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-circle-play text-pink-500"></i> ريلز المعرفة
+                    </a>
+                    <a href="#micro-learning" class="text-slate-300 hover:text-teal-400 transition-colors">التحدي اليومي</a>
+                    <a href="#leaderboard" class="text-slate-300 hover:text-amber-400 transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-trophy text-amber-400"></i> دوري المحافظات
+                    </a>
+                    <a href="#badges" class="text-slate-300 hover:text-teal-400 transition-colors">أوسمتي</a>
+                </nav>
+
+                <!-- User Points & Profile Widget -->
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 bg-gradient-to-r from-amber-500/20 to-amber-600/10 border border-amber-500/40 px-4 py-2 rounded-full text-amber-300 font-extrabold text-sm shadow-inner">
+                        <i class="fa-solid fa-star text-amber-400 animate-pulse"></i>
+                        <span id="userPoints">150</span>
+                        <span class="text-xs text-amber-200">نقطة</span>
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <button id="mobileMenuBtn" class="md:hidden text-slate-300 hover:text-white text-2xl focus:outline-none">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobileMenu" class="hidden md:hidden glass-panel border-t border-slate-800 px-4 pt-2 pb-6 space-y-3">
+            <a href="#hero" class="block px-3 py-2 rounded-md text-base font-bold text-slate-200 hover:bg-slate-800">الرئيسية</a>
+            <a href="#reels-section" class="block px-3 py-2 rounded-md text-base font-bold text-pink-400 hover:bg-slate-800">🎬 ريلز المعرفة</a>
+            <a href="#micro-learning" class="block px-3 py-2 rounded-md text-base font-bold text-slate-200 hover:bg-slate-800">التحدي اليومي</a>
+            <a href="#leaderboard" class="block px-3 py-2 rounded-md text-base font-bold text-amber-400 hover:bg-slate-800">دوري المحافظات</a>
+            <a href="#badges" class="block px-3 py-2 rounded-md text-base font-bold text-slate-200 hover:bg-slate-800">الأوسمة والجوائز</a>
+        </div>
+    </header>
+
+    <main class="flex-grow space-y-20 py-6">
+
+        <!-- Hero Section -->
+        <section id="hero" class="relative overflow-hidden pt-6 pb-10">
+            <div class="absolute top-1/4 right-10 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl -z-10"></div>
+            <div class="absolute bottom-10 left-10 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl -z-10"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                    <!-- Hero Content -->
+                    <div class="lg:col-span-7 space-y-6 text-center lg:text-right">
+                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-950/80 border border-indigo-500/30 text-indigo-300 text-xs sm:text-sm font-bold">
+                            <span class="flex h-2 w-2 rounded-full bg-pink-500 animate-ping"></span>
+                            شاهد الريلز التعليمية واكسب النقاط! 🎬
+                        </div>
+
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tight">
+                            العلوم والتاريخ بأسلوب <span class="bg-clip-text text-transparent bg-gradient-to-r from-teal-400 via-indigo-300 to-pink-400">الريلز القصير!</span>
+                        </h1>
+
+                        <p class="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl font-medium">
+                            منصة تعليمية بأسلوب عصري جذاب (12-20 سنة). اتفرج على مقاطع فيديوهات 60 ثانية، جاوب على الكويز السريع، وارفع علم محافظتك في **دوري المحافظات**!
+                        </p>
+
+                        <!-- Action Buttons -->
+                        <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+                            <a href="#reels-section" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-400 hover:to-indigo-500 text-white font-black text-lg shadow-lg shadow-pink-500/25 transition-all flex items-center gap-3 transform hover:-translate-y-1">
+                                <i class="fa-solid fa-play"></i>
+                                ابدأ مشاهدة الريلز
+                            </a>
+                            <a href="#leaderboard" class="px-8 py-4 rounded-2xl glass-panel hover:bg-slate-800/80 text-white font-bold text-lg border border-slate-700 transition-all flex items-center gap-3">
+                                <i class="fa-solid fa-trophy text-amber-400"></i>
+                                جدول المحافظات
+                            </a>
+                        </div>
+
+                        <!-- Quick Stats Banner -->
+                        <div class="pt-6 grid grid-cols-3 gap-4 border-t border-slate-800/80 text-center">
+                            <div>
+                                <span class="block text-2xl sm:text-3xl font-black text-teal-400">27</span>
+                                <span class="text-xs text-slate-400 font-semibold">محافظة متنافسة</span>
+                            </div>
+                            <div>
+                                <span class="block text-2xl sm:text-3xl font-black text-pink-400">60 ثانية</span>
+                                <span class="text-xs text-slate-400 font-semibold">مدة كل فيديو</span>
+                            </div>
+                            <div>
+                                <span class="block text-2xl sm:text-3xl font-black text-indigo-400">+10 نقاط</span>
+                                <span class="text-xs text-slate-400 font-semibold">لكل كويز صح</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Profile Quick Card -->
+                    <div class="lg:col-span-5 flex justify-center">
+                        <div class="relative w-full max-w-md">
+                            <div class="absolute -inset-1 rounded-3xl bg-gradient-to-r from-pink-500 via-purple-500 to-teal-500 opacity-30 blur-xl"></div>
+                            <div class="relative glass-panel rounded-3xl p-6 space-y-6">
+                                <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-pink-400 font-bold border border-pink-500/30 text-xl">
+                                            <i class="fa-solid fa-user-astronaut"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-white text-base">الباحث الشاب</h4>
+                                            <p class="text-xs text-slate-400" id="userGovDisplay">المحافظة: القاهرة</p>
+                                        </div>
+                                    </div>
+                                    <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-pink-500/20 text-pink-300 border border-pink-500/30">متصل الآن</span>
+                                </div>
+
+                                <div class="bg-slate-900/80 rounded-2xl p-4 border border-slate-800 space-y-3">
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span class="text-slate-400">فيديو اليوم الأكثر مشاهدة</span>
+                                        <span class="text-amber-400 font-bold">+10 نقاط</span>
+                                    </div>
+                                    <h5 class="font-bold text-white">تجربة الزيت والماء وسبب الكثافة 🧪</h5>
+                                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                        <div class="bg-gradient-to-r from-pink-500 to-teal-400 h-2 rounded-full w-4/5"></div>
+                                    </div>
+                                </div>
+
+                                <div class="p-4 rounded-2xl bg-indigo-950/50 border border-indigo-500/20 flex items-center gap-4">
+                                    <i class="fa-solid fa-fire text-3xl text-amber-400 animate-bounce"></i>
+                                    <div>
+                                        <h5 class="font-bold text-sm text-white">حماس دوري المحافظات!</h5>
+                                        <p class="text-xs text-slate-300">القاهرة وأسيوط في منافسة شرسة على المركز الأول اليوم.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Vertical Reels Micro-Video Player Section -->
+        <section id="reels-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center space-y-3 mb-10">
+                <span class="px-4 py-1.5 rounded-full bg-pink-500/10 text-pink-400 font-bold text-xs uppercase tracking-wider border border-pink-500/20">
+                    ريلز ثقفني شكراً التعليمية 🎬
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-black text-white">شاهد وافهم واكسب النقاط!</h2>
+                <p class="text-slate-400 text-sm sm:text-base max-w-xl mx-auto">
+                    مقاطع فيديو قصيرة عمودية تمنحك المعلومة في ثوانٍ معدودة، متبوعة بكويز فوري لرفع نقاطك.
+                </p>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-6 lg:p-8 border border-slate-700/60 shadow-2xl">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+
+                    <!-- Vertical Reels Player Column -->
+                    <div class="lg:col-span-5 flex flex-col items-center">
+                        
+                        <!-- Video Tabs Selector -->
+                        <div class="w-full flex justify-between gap-1 mb-4 bg-slate-900 p-1.5 rounded-2xl border border-slate-800 text-xs font-bold">
+                            <button onclick="switchReel('oil')" id="reelTab-oil" class="flex-1 py-2 px-2 rounded-xl bg-pink-600 text-white transition-all text-center">
+                                🧪 الزيت والماء
+                            </button>
+                            <button onclick="switchReel('rosetta')" id="reelTab-rosetta" class="flex-1 py-2 px-2 rounded-xl text-slate-400 hover:text-white transition-all text-center">
+                                🏛️ حجر رشيد
+                            </button>
+                            <button onclick="switchReel('sky')" id="reelTab-sky" class="flex-1 py-2 px-2 rounded-xl text-slate-400 hover:text-white transition-all text-center">
+                                🌌 سر لون السماء
+                            </button>
+                        </div>
+
+                        <!-- Reels Frame -->
+                        <div class="relative w-full max-w-xs reels-container rounded-3xl overflow-hidden border-2 border-indigo-500/40 shadow-2xl bg-black flex items-center justify-center">
+                            
+                            <!-- Video Mockup Background Render -->
+                            <div id="reelVideoContainer" class="absolute inset-0 w-full h-full bg-gradient-to-b from-indigo-900/60 via-slate-900 to-black flex flex-col justify-between p-5 text-white">
+                                
+                                <!-- Top Bar in Video -->
+                                <div class="flex justify-between items-center z-10 pt-2">
+                                    <span class="px-3 py-1 rounded-full bg-black/60 text-[11px] font-bold border border-white/10 backdrop-blur-md">
+                                        <i class="fa-solid fa-play text-pink-500 ml-1"></i> ريلز تعليمي
+                                    </span>
+                                    <span id="reelDuration" class="text-xs font-bold text-slate-300 bg-black/60 px-2 py-1 rounded-md">00:45</span>
+                                </div>
+
+                                <!-- Center Animated Visual Placeholder -->
+                                <div class="my-auto text-center space-y-4">
+                                    <div id="reelVisualIcon" class="w-20 h-20 mx-auto rounded-full bg-pink-500/20 border-2 border-pink-500 flex items-center justify-center text-4xl text-pink-400 animate-pulse">
+                                        <i class="fa-solid fa-flask"></i>
+                                    </div>
+                                    <p id="reelOverlayText" class="text-xs px-4 text-slate-200 font-semibold leading-relaxed bg-black/40 py-2 rounded-xl backdrop-blur-sm">
+                                        ليه الزيت بيفضل فوق المية ومش بيمتزجوا؟
+                                    </p>
+                                </div>
+
+                                <!-- Bottom Reel Metadata & Engagement Buttons -->
+                                <div class="flex justify-between items-end z-10">
+                                    <div class="space-y-1 text-right max-w-[180px]">
+                                        <h4 id="reelTitle" class="font-black text-sm text-white">سر تجربة الزيت والماء</h4>
+                                        <p class="text-[11px] text-slate-300">#كيمياء #فيزياء #تبسيط_العلوم</p>
+                                    </div>
+
+                                    <!-- Right Action Sidebar (Reels Style) -->
+                                    <div class="flex flex-col items-center space-y-4 text-white">
+                                        <button onclick="toggleLike(this)" class="flex flex-col items-center text-xs font-bold group">
+                                            <div class="w-10 h-10 rounded-full bg-black/50 border border-white/20 flex items-center justify-center text-lg group-hover:text-pink-500 transition-colors">
+                                                <i class="fa-solid fa-heart"></i>
+                                            </div>
+                                            <span class="text-[10px] mt-1" id="likeCount">1.2k</span>
+                                        </button>
+
+                                        <button onclick="scrollToSection('reelQuizBox')" class="flex flex-col items-center text-xs font-bold group">
+                                            <div class="w-10 h-10 rounded-full bg-pink-600 border border-pink-400 flex items-center justify-center text-lg shadow-lg shadow-pink-500/50 animate-bounce">
+                                                <i class="fa-solid fa-brain text-white"></i>
+                                            </div>
+                                            <span class="text-[10px] mt-1 text-pink-300">الكويز</span>
+                                        </button>
+
+                                        <button onclick="shareReel()" class="flex flex-col items-center text-xs font-bold group">
+                                            <div class="w-10 h-10 rounded-full bg-black/50 border border-white/20 flex items-center justify-center text-lg group-hover:text-teal-400 transition-colors">
+                                                <i class="fa-solid fa-share"></i>
+                                            </div>
+                                            <span class="text-[10px] mt-1">مشاركة</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video Details & Attached Quiz -->
+                    <div class="lg:col-span-7 space-y-6">
+                        
+                        <div class="space-y-3">
+                            <span id="reelCategoryBadge" class="px-3 py-1 rounded-full bg-teal-500/10 text-teal-400 font-bold text-xs border border-teal-500/20">
+                                🧪 فيديو الشرح العلمي
+                            </span>
+                            <h3 id="reelMainHeading" class="text-2xl sm:text-3xl font-black text-white">
+                                تجربة الزيت والماء وسبب الكثافة
+                            </h3>
+                            <p id="reelDescription" class="text-slate-300 text-sm leading-relaxed">
+                                في المقطع ده بنشرح ليه الزيت بيفضل فوق المية. الزيت مادة غير قطبية وكثافتها أقل من المية الملونة القطبية، وعشان كده المستحيل يمتزجوا بدون عامل مساعد!
+                            </p>
+                        </div>
+
+                        <!-- Video Quiz Card Attached directly below -->
+                        <div id="reelQuizBox" class="bg-slate-900/90 rounded-2xl p-6 border border-pink-500/30 space-y-4 shadow-xl">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                                <span class="text-xs font-bold text-amber-400 flex items-center gap-1">
+                                    <i class="fa-solid fa-bolt"></i> كويز المقطع الحالي (+10 نقاط)
+                                </span>
+                                <span class="text-xs text-slate-400">سؤال فوري</span>
+                            </div>
+
+                            <h4 id="reelQuizQuestion" class="font-bold text-white text-base">
+                                لماذا يطفو الزيت فوق سطح الماء ولا يختلط به؟
+                            </h4>
+
+                            <div class="space-y-2.5" id="reelQuizOptions">
+                                <!-- Dynamically filled via JS -->
+                            </div>
+
+                            <div id="reelQuizFeedback" class="hidden p-3 rounded-xl text-xs font-bold text-center"></div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Micro-Learning Topics Grid Section -->
+        <section id="micro-learning" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+                <div>
+                    <span class="px-4 py-1.5 rounded-full bg-indigo-500/10 text-indigo-400 font-bold text-xs uppercase tracking-wider border border-indigo-500/20">
+                        التحدي اليومي ⏱️
+                    </span>
+                    <h2 class="text-3xl font-black text-white mt-2">تعلم واقرأ في 3 دقائق</h2>
+                </div>
+                <p class="text-slate-400 text-sm max-w-md">
+                    مواضيع مقروءة ومكثفة جداً تناسب الشباب، مع كويزات سريعة لجمع المزيد من النقاط.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- History Card -->
+                <div class="glass-card rounded-3xl p-6 flex flex-col justify-between space-y-4">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs font-bold border border-amber-500/20">
+                                🏛️ تاريخ وحضارة
+                            </span>
+                            <span class="text-xs text-slate-400"><i class="fa-regular fa-clock"></i> 3 دقائق</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">سر حجر رشيد ورموز الهيروغليفية</h3>
+                        <p class="text-slate-300 text-xs leading-relaxed">
+                            كيف استطاع العالم شامبليون فك طلاسم اللغة المصرية القديمة بعد اكتشاف حجر رشيد؟
+                        </p>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between">
+                        <span class="text-xs text-amber-400 font-bold">+10 نقاط</span>
+                        <button onclick="openTopicModal('history')" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-colors">
+                            اقرأ واختبر
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Astronomy Card -->
+                <div class="glass-card rounded-3xl p-6 flex flex-col justify-between space-y-4">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="px-3 py-1 rounded-full bg-teal-500/10 text-teal-400 text-xs font-bold border border-teal-500/20">
+                                🌌 الفلك والكون
+                            </span>
+                            <span class="text-xs text-slate-400"><i class="fa-regular fa-clock"></i> 2 دقائق</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">لماذا تكتسي السماء باللون الأزرق؟</h3>
+                        <p class="text-slate-300 text-xs leading-relaxed">
+                            تعرف على ظاهرة "تشتت رالي" وكيف تتفاعل أشعة الشمس مع الغلاف الجوي للكرة الأرضية.
+                        </p>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between">
+                        <span class="text-xs text-amber-400 font-bold">+10 نقاط</span>
+                        <button onclick="openTopicModal('astronomy')" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-colors">
+                            اقرأ واختبر
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Physics Card -->
+                <div class="glass-card rounded-3xl p-6 flex flex-col justify-between space-y-4">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="px-3 py-1 rounded-full bg-pink-500/10 text-pink-400 text-xs font-bold border border-pink-500/20">
+                                ⚛️ الفيزياء الحديثة
+                            </span>
+                            <span class="text-xs text-slate-400"><i class="fa-regular fa-clock"></i> 3 دقائق</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">عجائب السائل اللانيوتوني</h3>
+                        <p class="text-slate-300 text-xs leading-relaxed">
+                            سائل يتصرف كالمزيد من الماء عند اللمس اللطيف، ولكنه يتصلب كالصخر عند ضغطه بقوة!
+                        </p>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between">
+                        <span class="text-xs text-amber-400 font-bold">+10 نقاط</span>
+                        <button onclick="openTopicModal('physics')" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-colors">
+                            اقرأ واختبر
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Governorates Leaderboard Section -->
+        <section id="leaderboard" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="glass-panel rounded-3xl p-6 sm:p-10 border border-slate-700/80">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    
+                    <!-- Leaderboard Header & Governorate Selector -->
+                    <div class="lg:col-span-5 space-y-6">
+                        <span class="px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-400 font-bold text-xs uppercase tracking-wider border border-amber-500/20">
+                            المنافسة التنافسية 🏆
+                        </span>
+                        <h2 class="text-3xl sm:text-4xl font-black text-white">دوري المحافظات المصرية</h2>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            شارك في الكويزات واجمع النقاط لتعزيز ترتيب محافظتك في القائمة الرسمية. كل نقطة تجمعها ترفع اسم المحافظة عالياً!
+                        </p>
+
+                        <!-- Select Governorate Box -->
+                        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3">
+                            <label class="block text-xs font-bold text-slate-300">اختر محافظتك الحالية:</label>
+                            <div class="flex gap-2">
+                                <select id="govSelect" class="flex-grow bg-slate-800 text-white font-bold text-sm rounded-xl px-4 py-3 border border-slate-700 focus:outline-none focus:border-indigo-500">
+                                    <option value="القاهرة">القاهرة</option>
+                                    <option value="أسيوط">أسيوط</option>
+                                    <option value="الإسكندرية">الإسكندرية</option>
+                                    <option value="الجيزة">الجيزة</option>
+                                    <option value="المنيا">المنيا</option>
+                                    <option value="الدقهلية">الدقهلية</option>
+                                    <option value="سوهاج">سوهاج</option>
+                                </select>
+                                <button onclick="saveGovernorate()" class="px-5 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm transition-all shadow-md">
+                                    حفظ
+                                </button>
+                            </div>
+                            <p class="text-[11px] text-slate-400">سيتم إضافة نقاط إجاباتك تلقائياً لرصيد هذه المحافظة.</p>
+                        </div>
+                    </div>
+
+                    <!-- Ranked Leaderboard List -->
+                    <div class="lg:col-span-7">
+                        <div class="bg-slate-950/80 rounded-2xl p-4 sm:p-6 border border-slate-800 space-y-3 shadow-inner">
+                            <div class="flex justify-between text-xs text-slate-400 font-bold pb-2 border-b border-slate-800 px-3">
+                                <span>الترتيب والمحافظة</span>
+                                <span>مجموع النقاط</span>
+                            </div>
+
+                            <div id="leaderboardList" class="space-y-2">
+                                <!-- Dynamic rendering via JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Gamification & Badges Showcase Section -->
+        <section id="badges" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center space-y-3 mb-10">
+                <span class="px-4 py-1.5 rounded-full bg-pink-500/10 text-pink-400 font-bold text-xs uppercase tracking-wider border border-pink-500/20">
+                    نظام الإنجازات 🎖️
+                </span>
+                <h2 class="text-3xl font-black text-white">أوسمتك وجوائزك المعرفية</h2>
+                <p class="text-slate-400 text-sm max-w-md mx-auto">
+                    احصل على أوسمة تميز كلما قمت بمشاهدة مقاطع الريلز وحل الكويزات!
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+                <!-- Badge 1 -->
+                <div class="glass-card rounded-2xl p-5 text-center space-y-3 border border-teal-500/30">
+                    <div class="w-16 h-16 mx-auto rounded-full bg-teal-500/20 border border-teal-400/40 flex items-center justify-center text-teal-300 text-2xl shadow-lg">
+                        <i class="fa-solid fa-seedling"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-white text-sm">مستكشف مبتدئ</h4>
+                        <p class="text-[11px] text-slate-400 mt-1">عند فتح الحساب وإتمام أول كويز</p>
+                    </div>
+                    <span class="inline-block px-3 py-1 rounded-full text-[10px] font-extrabold bg-teal-500/20 text-teal-300">مكتمل 🏆</span>
+                </div>
+
+                <!-- Badge 2 -->
+                <div class="glass-card rounded-2xl p-5 text-center space-y-3 border border-pink-500/30">
+                    <div class="w-16 h-16 mx-auto rounded-full bg-pink-500/20 border border-pink-400/40 flex items-center justify-center text-pink-300 text-2xl shadow-lg">
+                        <i class="fa-solid fa-film"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-white text-sm">مشاهد الريلز</h4>
+                        <p class="text-[11px] text-slate-400 mt-1">مشاهدة كويز الريلز الأول بنجاح</p>
+                    </div>
+                    <span class="inline-block px-3 py-1 rounded-full text-[10px] font-extrabold bg-pink-500/20 text-pink-300">مكتمل 🏆</span>
+                </div>
+
+                <!-- Badge 3 -->
+                <div class="glass-card rounded-2xl p-5 text-center space-y-3 opacity-60">
+                    <div class="w-16 h-16 mx-auto rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-500 text-2xl">
+                        <i class="fa-solid fa-scroll"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-300 text-sm">مؤرخ المستقبل</h4>
+                        <p class="text-[11px] text-slate-400 mt-1">إتمام جميع مواضيع قسم التاريخ</p>
+                    </div>
+                    <span class="inline-block px-3 py-1 rounded-full text-[10px] font-extrabold bg-slate-800 text-slate-400">قيد التقدم 🔒</span>
+                </div>
+
+                <!-- Badge 4 -->
+                <div class="glass-card rounded-2xl p-5 text-center space-y-3 opacity-60">
+                    <div class="w-16 h-16 mx-auto rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-500 text-2xl">
+                        <i class="fa-solid fa-meteor"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-300 text-sm">رائد الفضاء</h4>
+                        <p class="text-[11px] text-slate-400 mt-1">إتمام 5 مواضيع فلك مختلفة</p>
+                    </div>
+                    <span class="inline-block px-3 py-1 rounded-full text-[10px] font-extrabold bg-slate-800 text-slate-400">قيد التقدم 🔒</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Generic Modal for Micro-Learning Quiz -->
+    <div id="topicModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+        <div class="glass-panel w-full max-w-lg rounded-3xl p-6 border border-slate-700 space-y-5 relative">
+            <button onclick="closeTopicModal()" class="absolute top-4 left-4 text-slate-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div id="modalContent" class="space-y-4">
+                <!-- Content dynamically populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 bg-slate-950 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-3">
+            <div class="flex items-center justify-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-pink-500 flex items-center justify-center text-white font-black text-xs">
+                    🚀
+                </div>
+                <span class="font-extrabold text-white">منصة ثقفني شكراً التعليمية | Thaqafni Shukran</span>
+            </div>
+            <p class="text-xs text-slate-400">جميع الحقوق محفوظة © 2026 - تكنولوجيا تعزز الفنون والمعرفة (TECA)</p>
+        </div>
+    </footer>
+
+    <!-- Application Logic Script -->
+    <script>
+        // Global User State
+        let userState = {
+            points: 150,
+            governorate: 'القاهرة'
+        };
+
+        // Leaderboard Data
+        let leaderboardData = [
+            { name: "القاهرة", points: 12450 },
+            { name: "أسيوط", points: 11200 },
+            { name: "الإسكندرية", points: 9800 },
+            { name: "الجيزة", points: 8900 },
+            { name: "المنيا", points: 7650 },
+            { name: "الدقهلية", points: 6400 }
+        ];
+
+        // Reels Database
+        const reelsData = {
+            oil: {
+                title: "سر تجربة الزيت والماء 🧪",
+                heading: "تجربة الزيت والماء وسبب الكثافة",
+                duration: "00:45",
+                icon: "fa-flask",
+                overlayText: "ليه الزيت بيفضل فوق المية ومش بيمتزجوا؟",
+                category: "🧪 كيمياء وفيزياء",
+                description: "في المقطع ده بنشرح ليه الزيت بيفضل فوق المية. الزيت مادة غير قطبية وكثافتها أقل من المية الملونة القطبية، وعشان كده المستحيل يمتزجوا بدون عامل مساعد!",
+                question: "لماذا يطفو الزيت فوق سطح الماء ولا يختلط به؟",
+                options: [
+                    { text: "أ) لأن وزن الزيت أثقل بكثير من الماء", correct: false },
+                    { text: "ب) لأن كثافة الزيت أقل ولا يمتزجان كيميائياً", correct: true },
+                    { text: "ج) بسبب درجة حرارة الغرفة", correct: false }
+                ]
+            },
+            rosetta: {
+                title: "سر فك طلاسم حجر رشيد 🏛️",
+                heading: "قصة اكتشاف حجر رشيد في دقيقة",
+                duration: "00:58",
+                icon: "fa-scroll",
+                overlayText: "إزاي كلمة واحدة غيرت فهمنا لتاريخ مصر القديم؟",
+                category: "🏛️ تاريخ وحضارة",
+                description: "اكتشف جنود نابليون حجر رشيد مكتوب بـ 3 لغات. فك العالم شامبليون الرموز بمقارنة أسماء الملوك اليونانية مع الهيروغليفية!",
+                question: "ما هو العالم الذي استطاع فك طلاسم حجر رشيد؟",
+                options: [
+                    { text: "أ) جان فرانسوا شامبليون", correct: true },
+                    { text: "ب) إكزاك نيوتن", correct: false },
+                    { text: "ج) ابن الهيثم", correct: false }
+                ]
+            },
+            sky: {
+                title: "ليه السماء لونها أزرق؟ 🌌",
+                heading: "ظاهرة تشتت الضوء في السماء",
+                duration: "00:50",
+                icon: "fa-sun",
+                overlayText: "ليه بنشوف السماء زرقاء الصبح وحمراء وقت الغروب؟",
+                category: "🌌 فلك وفيزياء",
+                description: "تشتت رالي هو السبب! الضوء الأزرق طوله الموجي قصير جداً فتشتته جزيئات الغلاف الجوي في كل اتجاه بنسبة أكبر نهاراً.",
+                question: "ما اسم الظاهرة الفيزيائية المسؤولة عن تشتت اللون الأزرق نهاراً؟",
+                options: [
+                    { text: "أ) الانعكاس الصوتي", correct: false },
+                    { text: "ب) تشتت رالي (Rayleigh Scattering)", correct: true },
+                    { text: "ج) الجاذبية الارضية", correct: false }
+                ]
+            }
+        };
+
+        // Switch Active Reel
+        function switchReel(key) {
+            const data = reelsData[key];
+
+            // Reset tab styles
+            ['oil', 'rosetta', 'sky'].forEach(k => {
+                const btn = document.getElementById(`reelTab-${k}`);
+                btn.className = "flex-1 py-2 px-2 rounded-xl text-slate-400 hover:text-white transition-all text-center";
+            });
+
+            // Active Tab style
+            document.getElementById(`reelTab-${key}`).className = "flex-1 py-2 px-2 rounded-xl bg-pink-600 text-white transition-all text-center font-bold";
+
+            // Update Video Player visual
+            document.getElementById('reelTitle').innerText = data.title;
+            document.getElementById('reelDuration').innerText = data.duration;
+            document.getElementById('reelOverlayText').innerText = data.overlayText;
+            document.getElementById('reelVisualIcon').innerHTML = `<i class="fa-solid ${data.icon}"></i>`;
+
+            // Update Reel Text details
+            document.getElementById('reelCategoryBadge').innerText = data.category;
+            document.getElementById('reelMainHeading').innerText = data.heading;
+            document.getElementById('reelDescription').innerText = data.description;
+
+            // Render Attached Quiz
+            document.getElementById('reelQuizQuestion').innerText = data.question;
+            const optionsContainer = document.getElementById('reelQuizOptions');
+            const feedback = document.getElementById('reelQuizFeedback');
+            feedback.className = "hidden p-3 rounded-xl text-xs font-bold text-center";
+
+            optionsContainer.innerHTML = data.options.map(opt => `
+                <button onclick="checkReelAnswer(this, ${opt.correct})" class="w-full text-right p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-xs sm:text-sm text-slate-200 font-semibold border border-slate-700 transition-all">
+                    ${opt.text}
+                </button>
+            `).join('');
+        }
+
+        // Check Reel Quiz Answer
+        function checkReelAnswer(btn, isCorrect) {
+            const feedback = document.getElementById('reelQuizFeedback');
+            const container = document.getElementById('reelQuizOptions').children;
+
+            for (let opt of container) {
+                opt.disabled = true;
+                opt.classList.add('opacity-50');
+            }
+
+            feedback.classList.remove('hidden');
+
+            if (isCorrect) {
+                btn.classList.remove('bg-slate-800/80', 'opacity-50');
+                btn.classList.add('bg-emerald-600', 'text-white', 'border-emerald-400');
+                
+                feedback.className = "p-3 rounded-xl text-xs font-bold text-center bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+                feedback.innerHTML = "🎉 إجابة صحيحة وممتازة! تم إضافة +10 نقاط لرصيدك وللمحافظة.";
+
+                addPoints(10);
+                triggerConfetti();
+            } else {
+                btn.classList.remove('bg-slate-800/80', 'opacity-50');
+                btn.classList.add('bg-rose-600', 'text-white', 'border-rose-400');
+
+                feedback.className = "p-3 rounded-xl text-xs font-bold text-center bg-rose-500/20 text-rose-300 border border-rose-500/40";
+                feedback.innerHTML = "❌ إجابة خاطئة. حاول مرة أخرى مع مقطع فيديو آخر!";
+            }
+        }
+
+        // Add Points Helper
+        function addPoints(pts) {
+            userState.points += pts;
+            document.getElementById('userPoints').innerText = userState.points;
+
+            const govObj = leaderboardData.find(g => g.name === userState.governorate);
+            if (govObj) {
+                govObj.points += pts;
+                renderLeaderboard();
+            }
+        }
+
+        // Confetti Effect
+        function triggerConfetti() {
+            confetti({
+                particleCount: 80,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+
+        // Toggle Reel Like
+        function toggleLike(btn) {
+            const heartIcon = btn.querySelector('i');
+            const countSpan = document.getElementById('likeCount');
+            if (heartIcon.classList.contains('text-pink-500')) {
+                heartIcon.classList.remove('text-pink-500');
+                countSpan.innerText = "1.2k";
+            } else {
+                heartIcon.classList.add('text-pink-500');
+                countSpan.innerText = "1.3k";
+                triggerConfetti();
+            }
+        }
+
+        function shareReel() {
+            alert('تم نسخ رابط ريلز المعرفة للحافظة! شارك الفائدة مع أصحابك 🎉');
+        }
+
+        // Render Leaderboard
+        function renderLeaderboard() {
+            const container = document.getElementById('leaderboardList');
+            container.innerHTML = '';
+
+            leaderboardData.sort((a, b) => b.points - a.points);
+
+            leaderboardData.forEach((item, idx) => {
+                const rank = idx + 1;
+                const isUserGov = item.name === userState.governorate;
+
+                let medal = `#${rank}`;
+                if (rank === 1) medal = '🥇';
+                if (rank === 2) medal = '🥈';
+                if (rank === 3) medal = '🥉';
+
+                const row = document.createElement('div');
+                row.className = `flex items-center justify-between p-3 rounded-xl transition-all ${
+                    isUserGov 
+                    ? 'bg-indigo-950/80 border border-indigo-500/50 shadow-md' 
+                    : 'bg-slate-900/60 border border-slate-800'
+                }`;
+
+                row.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="w-8 text-center font-black text-sm text-amber-400">${medal}</span>
+                        <span class="font-bold text-sm text-white">${item.name}</span>
+                        ${isUserGov ? '<span class="text-[10px] bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded-full border border-pink-500/30">محافظتك</span>' : ''}
+                    </div>
+                    <span class="font-black text-sm text-indigo-300">${item.points.toLocaleString()} نقطة</span>
+                `;
+
+                container.appendChild(row);
+            });
+        }
+
+        // Save Selected Governorate
+        function saveGovernorate() {
+            const selected = document.getElementById('govSelect').value;
+            userState.governorate = selected;
+            document.getElementById('userGovDisplay').innerText = `المحافظة: ${selected}`;
+            renderLeaderboard();
+            alert(`تم اعتماد محافظة [${selected}] لحسابك بنجاح!`);
+        }
+
+        // Micro-Learning Topic Modal
+        const topicData = {
+            history: {
+                title: "🏛️ سر حجر رشيد ورموز الهيروغليفية",
+                text: "تم اكتشاف حجر رشيد عام 1799. الحجر يحتوي على نص مكتوب بثلاثة لغات: الهيروغليفية، الديموطيقية، واليونانية. استطاع العالم شامبليون فك رموز اللغة المصريه القديمة بمقارنة أسماء الملوك!",
+                question: "ما هو العالم الذي استطاع فك طلاسم حجر رشيد؟",
+                options: [
+                    { text: "أ) نيوتن", correct: false },
+                    { text: "ب) جان فرانسوا شامبليون", correct: true },
+                    { text: "ج) أينشتاين", correct: false }
+                ]
+            },
+            astronomy: {
+                title: "🌌 لماذا تكتسي السماء باللون الأزرق؟",
+                text: "يتكون ضوء الشمس من ألوان الطيف. عند دخوله الغلاف الجوي ينكسر ويتشتت بفعل جزيئات الهواء. يمتلك اللون الأزرق طولاً موجياً قصيراً جداً، مما يجعله يتشتت أكثر من باقي الألوان نهاراً!",
+                question: "ما اسم الظاهرة الفيزيائية المسؤولة عن تشتت اللون الأزرق؟",
+                options: [
+                    { text: "أ) تشتت رالي (Rayleigh Scattering)", correct: true },
+                    { text: "ب) الانعكاس الصوتي", correct: false },
+                    { text: "ج) الضغط الجوي", correct: false }
+                ]
+            },
+            physics: {
+                title: "⚛️ عجائب السائل اللانيوتوني",
+                text: "السائل اللانيوتوني هو سائل تتغير لزوجته بزيادة الضغط. عند وضع يدك ببطء في خليط النشا والماء يتصرف كسائل، ولكن إذا ضربته بقوة وسرعة تتجمع الجزيئات فوراً ليتصرف كجسم صلب!",
+                question: "ماذا يحدث للسائل اللانيوتوني عند تعرضه لضربة مفاجئة؟",
+                options: [
+                    { text: "أ) يتحول لبخار فوراً", correct: false },
+                    { text: "ب) تترابط جزيئاته ويتصرف كجسم صلب", correct: true },
+                    { text: "ج) تزداد سيولته", correct: false }
+                ]
+            }
+        };
+
+        function openTopicModal(topicKey) {
+            const modal = document.getElementById('topicModal');
+            const content = document.getElementById('modalContent');
+            const data = topicData[topicKey];
+
+            content.innerHTML = `
+                <h3 class="text-xl font-black text-white">${data.title}</h3>
+                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed bg-slate-900/80 p-4 rounded-2xl border border-slate-800">${data.text}</p>
+                
+                <div class="space-y-3 pt-2">
+                    <p class="text-xs font-bold text-amber-400">سؤال التحدي السريع (+10 نقاط):</p>
+                    <p class="text-sm font-bold text-white">${data.question}</p>
+                    <div class="space-y-2">
+                        ${data.options.map((opt) => `
+                            <button onclick="handleModalQuiz(this, ${opt.correct})" class="w-full text-right p-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 font-semibold border border-slate-700 transition-all">
+                                ${opt.text}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeTopicModal() {
+            document.getElementById('topicModal').classList.add('hidden');
+        }
+
+        function handleModalQuiz(btn, isCorrect) {
+            if (isCorrect) {
+                btn.className = "w-full text-right p-3 rounded-xl bg-emerald-600 text-white text-xs font-bold";
+                addPoints(10);
+                triggerConfetti();
+                setTimeout(() => {
+                    closeTopicModal();
+                }, 1500);
+            } else {
+                btn.className = "w-full text-right p-3 rounded-xl bg-rose-600 text-white text-xs font-bold";
+            }
+        }
+
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Mobile Menu Toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        });
+
+        // Initialize on load
+        window.onload = function () {
+            switchReel('oil');
+            renderLeaderboard();
+        };
+    </script>
+</body>
+</html>
